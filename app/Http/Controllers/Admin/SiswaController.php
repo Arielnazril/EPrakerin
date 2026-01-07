@@ -14,8 +14,30 @@ class SiswaController extends Controller
     // Lihat daftar siswa yang sudah register
     public function index()
     {
-        $siswas = User::where('role', 'siswa')->with('jurusan')->latest()->get();
-        return view('admin.master.siswa.index', compact('siswas'));
+        // Pisahkan Siswa Aktif dan Pending biar Admin enak lihatnya
+        $siswaAktif = User::where('role', 'siswa')
+                          ->where('status_akun', 'aktif')
+                          ->with('jurusan')
+                          ->latest()
+                          ->get();
+
+        $siswaPending = User::where('role', 'siswa')
+                            ->where('status_akun', 'pending')
+                            ->with('jurusan')
+                            ->latest()
+                            ->get();
+
+        // Kirim dua variabel ini ke view
+        return view('admin.master.siswa.index', compact('siswaAktif', 'siswaPending'));
+    }
+
+    // Function baru untuk tombol verifikasi
+    public function verify($id)
+    {
+        $siswa = User::findOrFail($id);
+        $siswa->update(['status_akun' => 'aktif']);
+
+        return back()->with('success', 'Siswa berhasil diverifikasi');
     }
 
     // Admin bisa edit kalau siswa salah input nama/jurusan saat register
@@ -29,7 +51,7 @@ class SiswaController extends Controller
     public function update(Request $request, $id)
     {
         $siswa = User::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required',
             'jurusan_id' => 'required',

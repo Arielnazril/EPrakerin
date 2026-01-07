@@ -36,7 +36,7 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::middleware('guest')->group(function () {
-    
+
     // 1. Halaman Daftar (Register Siswa)
     Route::get('register', [RegisteredUserController::class, 'create'])
                 ->name('register');

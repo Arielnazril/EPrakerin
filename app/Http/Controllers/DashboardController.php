@@ -12,7 +12,8 @@ use App\Models\Instansi;
 class DashboardController extends Controller
 {
     /**
-     * Redirector: Menentukan user ini harus ke dashboard mana.
+     * Redirector Utama: Menentukan user ini harus ke dashboard mana.
+     * Diakses lewat route: /dashboard
      */
     public function index()
     {
@@ -31,40 +32,97 @@ class DashboardController extends Controller
         return abort(403, 'Role tidak dikenali');
     }
 
-    // --- DASHBOARD ADMIN ---
+    // =========================================================================
+    // 1. DASHBOARD ADMIN
+    // =========================================================================
     private function adminDashboard()
     {
-        // Hitung statistik untuk Admin
+        // A. Statistik Ringkas (Untuk Kartu di Atas)
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalGuru = User::where('role', 'guru')->count();
         $totalIndustri = Instansi::count();
         $siswaMagang = Placement::where('status', 'aktif')->count();
 
-        return view('admin.dashboard', compact('totalSiswa', 'totalGuru', 'totalIndustri', 'siswaMagang'));
+        // B. Data Siswa Pending (PENTING: Untuk Tabel Verifikasi Pendaftaran)
+        $siswaPending = User::where('role', 'siswa')
+                            ->where('status_akun', 'pending')
+                            ->with('jurusan')
+                            ->latest()
+                            ->get();
+
+        return view('admin.dashboard', compact(
+            'totalSiswa',
+            'totalGuru',
+            'totalIndustri',
+            'siswaMagang',
+            'siswaPending' // Variabel ini dikirim ke view untuk tabel validasi
+        ));
     }
 
-    // --- DASHBOARD SISWA ---
+    /**
+     * ACTION: Verifikasi Siswa (Tombol 'Terima' di Dashboard Admin)
+     */
+    public function verifySiswa($id)
+    {
+        $siswa = User::findOrFail($id);
+
+        // Pastikan hanya siswa yang bisa diverifikasi
+        if ($siswa->role !== 'siswa') {
+            return back()->with('error', 'User ini bukan siswa!');
+        }
+
+        $siswa->update(['status_akun' => 'aktif']);
+
+        return back()->with('success', 'Akun siswa ' . $siswa->name . ' berhasil diaktifkan.');
+    }
+
+    /**
+     * ACTION: Tolak Siswa (Tombol 'Tolak' di Dashboard Admin)
+     */
+    public function rejectSiswa($id)
+    {
+        $siswa = User::findOrFail($id);
+
+        // Hapus permanen jika ditolak (asumsi data sampah/spam)
+        $siswa->delete();
+
+        return back()->with('success', 'Pendaftaran siswa ditolak dan data dihapus.');
+    }
+
+
+    // =========================================================================
+    // 2. DASHBOARD SISWA
+    // =========================================================================
     private function siswaDashboard()
     {
-        $userId = Auth::id();
-        
-        // 1. Cek Status Magang (Placement)
+        $user = Auth::user();
+
+        // Cek Status Akun dulu (Double protection selain middleware)
+        if ($user->status_akun !== 'aktif') {
+            Auth::guard('web')->logout();
+            return redirect()->route('login')->with('error', 'Akun Anda belum diaktifkan Admin.');
+        }
+
+        // 1. Cek Info Tempat Magang
         $placement = Placement::with(['instansi', 'mentor', 'guru'])
-                              ->where('siswa_id', $userId)
+                              ->where('siswa_id', $user->id)
                               ->where('status', 'aktif')
                               ->first();
 
-        // 2. Cek Statistik Logbook Siswa
+        // 2. Statistik Logbook Pribadi
         $logbookSummary = [
-            'total' => Logbook::where('user_id', $userId)->count(),
-            'pending' => Logbook::where('user_id', $userId)->where('status', 'pending')->count(),
-            'disetujui' => Logbook::where('user_id', $userId)->where('status', 'disetujui')->count(),
+            'total' => Logbook::where('user_id', $user->id)->count(),
+            'pending' => Logbook::where('user_id', $user->id)->where('status', 'pending')->count(),
+            'disetujui' => Logbook::where('user_id', $user->id)->where('status', 'disetujui')->count(),
         ];
 
         return view('dashboard.siswa', compact('placement', 'logbookSummary'));
     }
 
-    // --- DASHBOARD GURU ---
+
+    // =========================================================================
+    // 3. DASHBOARD GURU
+    // =========================================================================
     private function guruDashboard()
     {
         $guruId = Auth::id();
@@ -78,7 +136,10 @@ class DashboardController extends Controller
         return view('dashboard.guru', compact('siswaBimbingan'));
     }
 
-    // --- DASHBOARD INDUSTRI (MENTOR) ---
+
+    // =========================================================================
+    // 4. DASHBOARD INDUSTRI (MENTOR)
+    // =========================================================================
     private function industriDashboard()
     {
         $mentorId = Auth::id();
@@ -92,7 +153,7 @@ class DashboardController extends Controller
         // Hitung Logbook yang butuh verifikasi (Pending)
         // Ambil ID siswa dulu
         $siswaIds = $siswaMagang->pluck('siswa_id');
-        
+
         $logbookPending = Logbook::whereIn('user_id', $siswaIds)
                                  ->where('status', 'pending')
                                  ->count();

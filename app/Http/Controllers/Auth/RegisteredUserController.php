@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Jurusan;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -20,7 +21,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $jurusans = Jurusan::all();
+        return view('auth.register', compact('jurusans'));
     }
 
     /**
@@ -35,6 +37,8 @@ class RegisteredUserController extends Controller
             'username' => ['required', 'string', 'max:225'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'jurusan_id' => ['required', 'exists:jurusans,id'],
+            'nomor_identitas' => ['required', 'string', 'max:20'],
         ]);
 
         $user = User::create([
@@ -42,12 +46,18 @@ class RegisteredUserController extends Controller
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'siswa',
+            'status_akun' => 'pending',
+            'nomor_identitas' => $request->nomor_identitas,
+            'jurusan_id' => $request->jurusan_id,
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect()->route('login')->with('status', 'Registrasi berhasil! Akun menunggu verifikasi Admin.');
+
+        // return redirect(RouteServiceProvider::HOME);
     }
 }

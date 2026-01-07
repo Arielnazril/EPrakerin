@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('instansi_id')->nullable()->constrained('instansis')->onDelete('set null');
             $table->foreignId('jurusan_id')->nullable()->constrained('jurusans')->onDelete('set null');
             $table->string('name');
+            $table->enum('status_akun', ['pending', 'aktif', 'nonaktif'])->default('aktif');
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
