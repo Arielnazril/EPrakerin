@@ -20,16 +20,33 @@ class ValidasiLogbookController extends Controller
         // 1. Cari siapa saja siswa yang dibimbing oleh Mentor ini
         $siswaIds = Placement::where('mentor_id', $mentorId)
                              ->where('status', 'aktif')
-                             ->pluck('siswa_id'); // Ambil array ID siswa
+                             ->pluck('siswa_id');
 
         // 2. Ambil logbook dari siswa-siswa tersebut
-        $logbooks = Logbook::with('siswa') // Load relasi siswa biar muncul namanya
+        $logbooks = Logbook::with('siswa') // Ganti 'siswa' jadi 'user' jika relasi di model Logbook namanya 'user'
                             ->whereIn('user_id', $siswaIds)
                             ->orderBy('tanggal', 'desc')
-                            ->orderBy('status', 'asc') // Tampilkan yang 'pending' duluan
-                            ->paginate(10);
+                            ->orderBy('status', 'asc')
+                            ->get();
 
-        return view('industri.logbook.index', compact('logbooks'));
+
+        return view('industri.validasi.index', compact('logbooks')); // JANGAN LUPA compact('logbooks')
+    }
+
+    /**
+     * Menampilkan Detail Logbook (INI YANG KURANG TADINYA)
+     */
+    public function show($id)
+    {
+        $mentorId = Auth::id();
+
+        // Security: Pastikan siswa ini beneran bimbingan mentor ini
+        $siswaIds = Placement::where('mentor_id', $mentorId)->pluck('siswa_id');
+
+        // Cari logbook
+        $logbook = Logbook::with('siswa')->whereIn('user_id', $siswaIds)->findOrFail($id);
+
+        return view('industri.validasi.show', compact('logbook'));
     }
 
     /**
@@ -37,20 +54,16 @@ class ValidasiLogbookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Validasi input
         $request->validate([
             'status' => 'required|in:disetujui,ditolak',
             'catatan' => 'nullable|string',
         ]);
 
-        // Ambil logbook, tapi pastikan logbook itu milik siswa bimbingannya
-        // (Security check agar mentor A tidak meng-ACC siswa mentor B)
         $mentorId = Auth::id();
         $siswaIds = Placement::where('mentor_id', $mentorId)->pluck('siswa_id');
 
         $logbook = Logbook::whereIn('user_id', $siswaIds)->findOrFail($id);
 
-        // Update Status
         $logbook->update([
             'status' => $request->status,
             'catatan_pembimbing' => $request->catatan,
@@ -58,6 +71,6 @@ class ValidasiLogbookController extends Controller
             'validated_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Logbook berhasil divalidasi: ' . ucfirst($request->status));
+        return redirect()->route('industri.validasi.index')->with('success', 'Logbook berhasil divalidasi.');
     }
 }

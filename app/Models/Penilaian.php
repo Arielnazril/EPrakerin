@@ -11,15 +11,15 @@ class Penilaian extends Model
 
     protected $guarded = ['id'];
 
-    // PENTING: Otomatis ubah JSON di database jadi Array di PHP
-    protected $casts = [
-        'detail_nilai_industri' => 'array',
-        'detail_nilai_guru' => 'array',
-    ];
-
-    // Relasi ke Placement (Penempatan)
+    // Relasi ke Data Penempatan
     public function placement()
     {
         return $this->belongsTo(Placement::class);
+    }
+
+    // Relasi ke Pemberi Nilai (Mentor/Guru)
+    public function penilai()
+    {
+        return $this->belongsTo(User::class, 'penilai_id');
     }
 }

@@ -2,95 +2,99 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\Placement;
 use App\Models\Penilaian;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PenilaianController extends Controller
 {
     /**
-     * Menampilkan Form Penilaian.
-     * Bisa diakses oleh Guru atau Mentor Industri.
+     * Menampilkan daftar siswa yang bisa dinilai.
+     * Otomatis membedakan view antara Guru dan Mentor.
+     */
+    public function index()
+    {
+        $user = Auth::user();
+        $placements = [];
+
+        // 1. LOGIKA UNTUK MENTOR INDUSTRI
+        if ($user->role == 'industri') {
+            $placements = Placement::where('mentor_id', $user->id)
+                                   ->where('status', 'aktif')
+                                   ->with(['siswa', 'instansi'])
+                                   ->get();
+
+            return view('industri.penilaian.index', compact('placements'));
+        }
+
+        // 2. LOGIKA UNTUK GURU SEKOLAH
+        elseif ($user->role == 'guru') {
+            $placements = Placement::where('guru_id', $user->id)
+                                   ->where('status', 'aktif')
+                                   ->with(['siswa', 'instansi'])
+                                   ->get();
+
+            return view('guru.penilaian.index', compact('placements'));
+        }
+
+        abort(403); // Akses ditolak jika bukan guru/industri
+    }
+
+    /**
+     * Form Input Nilai
      */
     public function create($placement_id)
     {
-        $placement = Placement::with(['siswa', 'instansi'])->findOrFail($placement_id);
         $user = Auth::user();
+        $placement = Placement::with('siswa')->findOrFail($placement_id);
 
-        // Cek Hak Akses: Hanya Guru atau Mentor yang terkait dengan placement ini yang boleh menilai
-        if ($user->role == 'guru' && $placement->guru_id != $user->id) {
-            abort(403, 'Anda bukan pembimbing siswa ini.');
+        // Cek apakah User ini SUDAH menilai siswa ini sebelumnya?
+        $existingNilai = Penilaian::where('placement_id', $placement_id)
+                                  ->where('penilai_id', $user->id)
+                                  ->first();
+
+        // Tentukan route redirect jika sudah nilai
+        $redirectRoute = ($user->role == 'guru') ? 'guru.penilaian.index' : 'industri.penilaian.index';
+
+        if ($existingNilai) {
+            return redirect()->route($redirectRoute)
+                             ->with('error', 'Siswa ini sudah Anda nilai sebelumnya.');
         }
-        if ($user->role == 'industri' && $placement->mentor_id != $user->id) {
-            abort(403, 'Anda bukan mentor siswa ini.');
+
+        // Tampilkan View sesuai Role
+        if ($user->role == 'guru') {
+            return view('guru.penilaian.create', compact('placement'));
+        } else {
+            return view('industri.penilaian.create', compact('placement'));
         }
-
-        // Cek apakah sudah ada penilaian sebelumnya?
-        $penilaian = Penilaian::where('placement_id', $placement_id)->first();
-
-        return view('penilaian.form', compact('placement', 'penilaian'));
     }
 
     /**
-     * Menyimpan Nilai.
+     * Simpan Nilai ke Database
      */
     public function store(Request $request, $placement_id)
     {
-        $placement = Placement::findOrFail($placement_id);
-        $user = Auth::user();
+        $request->validate([
+            'aspek_teknis' => 'required|numeric|min:0|max:100',
+            'aspek_non_teknis' => 'required|numeric|min:0|max:100',
+            'catatan' => 'nullable|string',
+        ]);
 
-        // Validasi Role
-        if (!in_array($user->role, ['guru', 'industri'])) {
-            abort(403);
-        }
+        // Simpan Data
+        Penilaian::create([
+            'placement_id' => $placement_id,
+            'penilai_id' => Auth::id(), // ID User yang sedang login (Guru/Mentor)
+            'aspek_teknis' => $request->aspek_teknis,
+            'aspek_non_teknis' => $request->aspek_non_teknis,
+            'nilai_akhir' => ($request->aspek_teknis + $request->aspek_non_teknis) / 2,
+            'catatan' => $request->catatan,
+        ]);
 
-        // Cari atau Buat row penilaian baru
-        $penilaian = Penilaian::firstOrNew(['placement_id' => $placement_id]);
+        // Tentukan Redirect Sesuai Role (INI PERBAIKANNYA)
+        $redirectRoute = (Auth::user()->role == 'guru') ? 'guru.penilaian.index' : 'industri.penilaian.index';
 
-        if ($user->role == 'industri') {
-            // Mentor Industri mengisi detail_nilai_industri
-            // Input dari form diharapkan array, misal: name="nilai[kedisiplinan]", name="nilai[skill]"
-            $dataNilai = $request->input('nilai'); // Array
-            $penilaian->detail_nilai_industri = json_encode($dataNilai); // Simpan sebagai JSON
-        } 
-        elseif ($user->role == 'guru') {
-            // Guru mengisi detail_nilai_guru
-            $dataNilai = $request->input('nilai');
-            $penilaian->detail_nilai_guru = json_encode($dataNilai);
-        }
-
-        // Hitung Rata-rata Sementara (Opsional, bisa dibuat otomatis saat save)
-        $penilaian->rata_rata_akhir = $this->hitungRataRata($penilaian);
-        
-        $penilaian->save();
-
-        return redirect()->back()->with('success', 'Nilai berhasil disimpan!');
-    }
-
-    /**
-     * Helper menghitung rata-rata dari JSON.
-     */
-    private function hitungRataRata($penilaian)
-    {
-        $total = 0;
-        $count = 0;
-
-        // Decode JSON ke Array
-        $nilaiIndustri = json_decode($penilaian->detail_nilai_industri, true) ?? [];
-        $nilaiGuru = json_decode($penilaian->detail_nilai_guru, true) ?? [];
-
-        // Gabungkan semua nilai
-        $semuaNilai = array_merge(array_values($nilaiIndustri), array_values($nilaiGuru));
-
-        if (empty($semuaNilai)) return 0;
-
-        // Hitung
-        foreach ($semuaNilai as $n) {
-            $total += (float)$n;
-            $count++;
-        }
-
-        return $count > 0 ? $total / $count : 0;
+        return redirect()->route($redirectRoute)
+                         ->with('success', 'Nilai berhasil disimpan untuk siswa ' . $request->nama_siswa);
     }
 }

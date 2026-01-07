@@ -37,8 +37,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 // Group Route yang butuh Login
 Route::middleware('auth')->group(function () {
 
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
     // =================================================================
     // 1. GROUP ADMIN (Hanya bisa diakses role:admin)
     // =================================================================
@@ -79,11 +77,14 @@ Route::middleware('auth')->group(function () {
     // =================================================================
     Route::middleware('role:industri')->prefix('industri')->name('industri.')->group(function () {
 
-        // Validasi Logbook
-        Route::get('/validasi-logbook', [ValidasiLogbookController::class, 'index'])->name('logbook.index');
-        Route::patch('/validasi-logbook/{id}', [ValidasiLogbookController::class, 'update'])->name('logbook.update');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Input Nilai (Mentor)
+        // Validasi Logbook
+        Route::get('/validasi', [ValidasiLogbookController::class, 'index'])->name('validasi.index');
+        Route::get('/validasi/{id}', [ValidasiLogbookController::class, 'show'])->name('validasi.show');
+        Route::put('/validasi/{id}', [ValidasiLogbookController::class, 'update'])->name('validasi.update');
+
+        Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
         Route::get('/penilaian/{placement_id}', [PenilaianController::class, 'create'])->name('penilaian.create');
         Route::post('/penilaian/{placement_id}', [PenilaianController::class, 'store'])->name('penilaian.store');
     });
@@ -93,7 +94,11 @@ Route::middleware('auth')->group(function () {
     // =================================================================
     Route::middleware('role:guru')->prefix('guru')->name('guru.')->group(function () {
 
-        // Input Nilai (Guru) - Route sama dengan industri tapi prefix beda
+        // Dashboard Guru
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Penilaian Guru (Lengkapi Index, Create, Store)
+        Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index'); // <-- WAJIB ADA
         Route::get('/penilaian/{placement_id}', [PenilaianController::class, 'create'])->name('penilaian.create');
         Route::post('/penilaian/{placement_id}', [PenilaianController::class, 'store'])->name('penilaian.store');
     });

@@ -8,6 +8,7 @@ use App\Models\Placement;
 use App\Models\Logbook;
 use App\Models\User;
 use App\Models\Instansi;
+use App\Models\Penilaian;
 
 class DashboardController extends Controller
 {
@@ -45,10 +46,10 @@ class DashboardController extends Controller
 
         // B. Data Siswa Pending (PENTING: Untuk Tabel Verifikasi Pendaftaran)
         $siswaPending = User::where('role', 'siswa')
-                            ->where('status_akun', 'pending')
-                            ->with('jurusan')
-                            ->latest()
-                            ->get();
+            ->where('status_akun', 'pending')
+            ->with('jurusan')
+            ->latest()
+            ->get();
 
         return view('admin.dashboard', compact(
             'totalSiswa',
@@ -105,9 +106,9 @@ class DashboardController extends Controller
 
         // 1. Cek Info Tempat Magang
         $placement = Placement::with(['instansi', 'mentor', 'guru'])
-                              ->where('siswa_id', $user->id)
-                              ->where('status', 'aktif')
-                              ->first();
+            ->where('siswa_id', $user->id)
+            ->where('status', 'aktif')
+            ->first();
 
         // 2. Statistik Logbook Pribadi
         $logbookSummary = [
@@ -127,15 +128,32 @@ class DashboardController extends Controller
     {
         $guruId = Auth::id();
 
-        // Ambil daftar siswa yang dibimbing guru ini
-        $siswaBimbingan = Placement::where('guru_id', $guruId)
-                                   ->with(['siswa', 'instansi'])
-                                   ->where('status', 'aktif')
-                                   ->get();
+        // 1. Ambil ID Siswa yang dibimbing Guru ini
+        $siswaIds = Placement::where('guru_id', $guruId)
+            ->where('status', 'aktif')
+            ->pluck('siswa_id');
 
-        return view('guru.dashboard', compact('siswaBimbingan'));
+        // 2. Data Statistik
+        $totalSiswa = $siswaIds->count();
+
+        // Cek berapa siswa yang sudah dinilai oleh Guru ini
+        $placementIds = Placement::where('guru_id', $guruId)->pluck('id');
+        $sudahDinilai = Penilaian::whereIn('placement_id', $placementIds)
+            ->where('penilai_id', $guruId)
+            ->count();
+
+        $belumDinilai = $totalSiswa - $sudahDinilai;
+
+        // 3. Logbook Terbaru (Monitoring)
+        $recentLogbooks = Logbook::whereIn('user_id', $siswaIds)
+            ->with('siswa')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Pastikan view ada di resources/views/dashboard/guru.blade.php
+        return view('guru.dashboard', compact('totalSiswa', 'sudahDinilai', 'belumDinilai', 'recentLogbooks'));
     }
-
 
     // =========================================================================
     // 4. DASHBOARD INDUSTRI (MENTOR)
@@ -146,17 +164,17 @@ class DashboardController extends Controller
 
         // Ambil daftar siswa yang dimonitor mentor ini
         $siswaMagang = Placement::where('mentor_id', $mentorId)
-                                ->with('siswa')
-                                ->where('status', 'aktif')
-                                ->get();
+            ->with('siswa')
+            ->where('status', 'aktif')
+            ->get();
 
         // Hitung Logbook yang butuh verifikasi (Pending)
         // Ambil ID siswa dulu
         $siswaIds = $siswaMagang->pluck('siswa_id');
 
         $logbookPending = Logbook::whereIn('user_id', $siswaIds)
-                                 ->where('status', 'pending')
-                                 ->count();
+            ->where('status', 'pending')
+            ->count();
 
         return view('industri.dashboard', compact('siswaMagang', 'logbookPending'));
     }

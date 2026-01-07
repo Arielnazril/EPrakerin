@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,21 +10,20 @@ return new class extends Migration
     {
         Schema::create('penilaians', function (Blueprint $table) {
             $table->id();
-            
-            // Terhubung ke tabel placement agar jelas ini nilai untuk periode magang yang mana
+
+            // Relasi ke tabel placements (Siswa mana yang dinilai)
             $table->foreignId('placement_id')->constrained('placements')->onDelete('cascade');
-            
-            // Aspek Nilai Industri (Disimpan dalam JSON agar fleksibel jika kriteria berubah)
-            // Contoh isi: {"kedisiplinan": 90, "tanggung_jawab": 85, "skill": 80}
-            $table->json('detail_nilai_industri')->nullable();
-            
-            // Aspek Nilai Guru
-            // Contoh isi: {"laporan": 85, "presentasi": 90}
-            $table->json('detail_nilai_guru')->nullable();
-            
-            $table->float('rata_rata_akhir')->default(0);
-            $table->text('catatan_akhir')->nullable();
-            
+
+            // Relasi ke tabel users (Siapa yang menilai: Mentor/Guru)
+            // INI KOLOM YANG SEBELUMNYA HILANG
+            $table->foreignId('penilai_id')->constrained('users')->onDelete('cascade');
+
+            // Data Nilai (Sesuai Controller)
+            $table->integer('aspek_teknis'); // 0-100
+            $table->integer('aspek_non_teknis'); // 0-100
+            $table->decimal('nilai_akhir', 5, 2); // Contoh: 85.50
+            $table->text('catatan')->nullable();
+
             $table->timestamps();
         });
     }

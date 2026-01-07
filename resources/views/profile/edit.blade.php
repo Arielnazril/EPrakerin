@@ -1,4 +1,19 @@
-@extends(Auth::user()->role == 'admin' ? 'layouts.admin_layout' : 'layouts.siswa_layout')
+@php
+    $layout = 'layouts.app'; // Default fallback
+
+    if(Auth::user()->role == 'admin') {
+        $layout = 'layouts.admin_layout';
+    } elseif(Auth::user()->role == 'siswa') {
+        $layout = 'layouts.siswa_layout';
+    } elseif(Auth::user()->role == 'industri') {
+        $layout = 'layouts.industri_layout';
+    } elseif(Auth::user()->role == 'guru') {
+        // Asumsi kamu nanti buat layout guru
+        $layout = 'layouts.guru_layout';
+    }
+@endphp
+
+@extends($layout)
 
 @section('page_title', 'Pengaturan Profil')
 
