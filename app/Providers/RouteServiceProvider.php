@@ -20,7 +20,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    // public const HOME = '/dashboard';
+    public const HOME = '/dashboard';
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate(); // Ini akan memanggil validasi status yg kita buat di atas
@@ -31,11 +31,11 @@ class RouteServiceProvider extends ServiceProvider
         $role = $request->user()->role;
 
         if ($role === 'admin') {
-            return redirect()->intended('/admin/dashboard');
+            return redirect()->intended('/dashboard');
         } elseif ($role === 'guru') {
-            return redirect()->intended('/guru/dashboard');
+            return redirect()->intended('/dashboard');
         } elseif ($role === 'industri') {
-            return redirect()->intended('/mentor/dashboard');
+            return redirect()->intended('/dashboard');
         }
 
         // Default siswa

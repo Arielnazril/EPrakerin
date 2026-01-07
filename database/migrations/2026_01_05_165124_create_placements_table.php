@@ -9,23 +9,23 @@ return new class extends Migration
     {
         Schema::create('placements', function (Blueprint $table) {
             $table->id();
-            
+
             // Siapa Siswanya?
             $table->foreignId('siswa_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('instansi_id')->constrained('instansis');
             // Siapa Guru Pembimbing Sekolahnya?
             $table->foreignId('guru_id')->constrained('users');
-            
+
             // Siapa Mentor Lapangannya? (Akun user role 'industri')
-            $table->foreignId('mentor_id')->constrained('users');
-            
+            $table->foreignId('mentor_id')->nullable()->constrained('users');
+
             // Periode Magang
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
-            
+
             // Status Magang
             $table->enum('status', ['aktif', 'selesai', 'dibatalkan'])->default('aktif');
-            
+
             $table->timestamps();
         });
     }

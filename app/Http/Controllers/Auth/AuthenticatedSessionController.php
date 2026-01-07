@@ -33,11 +33,11 @@ class AuthenticatedSessionController extends Controller
         $role = $request->user()->role;
 
         if ($role === 'admin') {
-            return redirect()->intended('/admin/dashboard');
+            return redirect()->intended('/dashboard');
         } elseif ($role === 'guru') {
-            return redirect()->intended('/guru/dashboard');
+            return redirect()->intended('/dashboard');
         } elseif ($role === 'industri') {
-            return redirect()->intended('/mentor/dashboard');
+            return redirect()->intended('/dashboard');
         }
 
         // Default siswa

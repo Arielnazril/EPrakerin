@@ -7,47 +7,50 @@ use App\Models\User;
 use App\Models\Jurusan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class SiswaController extends Controller
 {
-    // Lihat daftar siswa yang sudah register
+    // 1. HALAMAN UTAMA (INDEX)
     public function index()
     {
-        // Pisahkan Siswa Aktif dan Pending biar Admin enak lihatnya
-        $siswaAktif = User::where('role', 'siswa')
-                          ->where('status_akun', 'aktif')
-                          ->with('jurusan')
-                          ->latest()
-                          ->get();
-
+        // Ambil Siswa Pending (Untuk Tabel Verifikasi)
         $siswaPending = User::where('role', 'siswa')
                             ->where('status_akun', 'pending')
                             ->with('jurusan')
                             ->latest()
                             ->get();
 
-        // Kirim dua variabel ini ke view
-        return view('admin.master.siswa.index', compact('siswaAktif', 'siswaPending'));
+        // Ambil Siswa Aktif (Untuk Tabel Data Utama)
+        $siswaAktif = User::where('role', 'siswa')
+                          ->where('status_akun', 'aktif')
+                          ->with('jurusan')
+                          ->latest()
+                          ->get();
+
+        // Kita kirim dua variabel ini ke View
+        return view('admin.master.siswa.index', compact('siswaPending', 'siswaAktif'));
     }
 
-    // Function baru untuk tombol verifikasi
+    // 2. PROSES VERIFIKASI (TERIMA SISWA)
     public function verify($id)
     {
         $siswa = User::findOrFail($id);
+
+        // Ubah status jadi aktif
         $siswa->update(['status_akun' => 'aktif']);
 
-        return back()->with('success', 'Siswa berhasil diverifikasi');
+        return back()->with('success', 'Akun siswa ' . $siswa->name . ' berhasil diaktifkan.');
     }
 
-    // Admin bisa edit kalau siswa salah input nama/jurusan saat register
+    // 3. HALAMAN EDIT
     public function edit($id)
     {
-        $siswa = User::where('role', 'siswa')->findOrFail($id);
+        $siswa = User::findOrFail($id);
         $jurusans = Jurusan::all();
         return view('admin.master.siswa.edit', compact('siswa', 'jurusans'));
     }
 
+    // 4. PROSES UPDATE DATA
     public function update(Request $request, $id)
     {
         $siswa = User::findOrFail($id);
@@ -55,7 +58,7 @@ class SiswaController extends Controller
         $request->validate([
             'name' => 'required',
             'jurusan_id' => 'required',
-            'nomor_identitas' => 'required', // NIS
+            'nomor_identitas' => 'required',
         ]);
 
         $data = [
@@ -65,18 +68,22 @@ class SiswaController extends Controller
             'no_hp' => $request->no_hp,
         ];
 
-        // Jika admin mau reset password siswa
+        // Update password hanya jika diisi
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
         $siswa->update($data);
-        return redirect()->route('admin.siswa.index')->with('success', 'Data Siswa diperbarui');
+
+        return redirect()->route('admin.siswa.index')->with('success', 'Data siswa berhasil diperbarui.');
     }
 
+    // 5. HAPUS SISWA (Tolak / Hapus Permanen)
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
-        return back()->with('success', 'Siswa dihapus');
+        $siswa = User::findOrFail($id);
+        $siswa->delete();
+
+        return back()->with('success', 'Data siswa berhasil dihapus.');
     }
 }

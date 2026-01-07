@@ -77,7 +77,7 @@ class UserSeeder extends Seeder
             'role' => 'siswa',
             'jurusan_id' => 2, // TKJ
             'nomor_identitas' => '102031',
-            'status_akun' => 'aktif',
+            'status_akun' => 'pending',
         ]);
     }
 }

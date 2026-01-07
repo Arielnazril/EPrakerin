@@ -41,20 +41,15 @@ Route::middleware('auth')->group(function () {
     // =================================================================
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
 
-        // Dashboard Admin
-        Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-
-
-        // Fitur Verifikasi Siswa (Action Button di Dashboard)
-        Route::post('/siswa/{id}/verify', [DashboardController::class, 'verifySiswa'])->name('siswa.verify');
-        Route::delete('/siswa/{id}/reject', [DashboardController::class, 'rejectSiswa'])->name('siswa.reject');
+        Route::post('/siswa/{id}/verify', [SiswaController::class, 'verify'])->name('siswa.verify');
 
         // Master Data (Resource Controller)
         Route::resource('jurusan', JurusanController::class);
         Route::resource('instansi', InstansiController::class);
         Route::resource('guru', GuruController::class);
-        Route::resource('pembimbing', PembimbingIndustriController::class); // Mentor Lapangan
-        Route::resource('siswa', SiswaController::class); // CRUD Data Siswa Resmi
+        Route::resource('pembimbing', PembimbingIndustriController::class);
+        Route::resource('siswa', SiswaController::class);
+        Route::resource('placement', PlacementController::class);
 
         // Manajemen Penempatan Magang
         Route::resource('placement', PlacementController::class)->only(['index', 'create', 'store', 'destroy']);
@@ -104,4 +99,4 @@ Route::middleware('auth')->group(function () {
     // Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy'); // Matikan agar siswa tidak hapus akun sendiri
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
