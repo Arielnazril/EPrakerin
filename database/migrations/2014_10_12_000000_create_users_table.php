@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['admin', 'guru', 'industri', 'siswa'])->default('siswa');
             $table->string('nomor_identitas')->nullable()->comment('NIS untuk siswa, NIP untuk guru');
+            $table->string('kelas')->nullable();
+            $table->string('alamat')->nullable();
             $table->string('no_hp')->nullable();
             $table->rememberToken();
             $table->timestamps();

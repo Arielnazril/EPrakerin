@@ -38,13 +38,12 @@ class DashboardController extends Controller
     // =========================================================================
     private function adminDashboard()
     {
-        // A. Statistik Ringkas (Untuk Kartu di Atas)
+    
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalGuru = User::where('role', 'guru')->count();
         $totalIndustri = Instansi::count();
         $siswaMagang = Placement::where('status', 'aktif')->count();
 
-        // B. Data Siswa Pending (PENTING: Untuk Tabel Verifikasi Pendaftaran)
         $siswaPending = User::where('role', 'siswa')
             ->where('status_akun', 'pending')
             ->with('jurusan')
@@ -56,18 +55,17 @@ class DashboardController extends Controller
             'totalGuru',
             'totalIndustri',
             'siswaMagang',
-            'siswaPending' // Variabel ini dikirim ke view untuk tabel validasi
+            'siswaPending'
         ));
     }
 
     /**
-     * ACTION: Verifikasi Siswa (Tombol 'Terima' di Dashboard Admin)
+     * Verifikasi Siswa (Tombol 'Terima' di Dashboard Admin)
      */
     public function verifySiswa($id)
     {
         $siswa = User::findOrFail($id);
 
-        // Pastikan hanya siswa yang bisa diverifikasi
         if ($siswa->role !== 'siswa') {
             return back()->with('error', 'User ini bukan siswa!');
         }
@@ -84,7 +82,6 @@ class DashboardController extends Controller
     {
         $siswa = User::findOrFail($id);
 
-        // Hapus permanen jika ditolak (asumsi data sampah/spam)
         $siswa->delete();
 
         return back()->with('success', 'Pendaftaran siswa ditolak dan data dihapus.');
@@ -98,19 +95,16 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Cek Status Akun dulu (Double protection selain middleware)
         if ($user->status_akun !== 'aktif') {
             Auth::guard('web')->logout();
             return redirect()->route('login')->with('error', 'Akun Anda belum diaktifkan Admin.');
         }
 
-        // 1. Cek Info Tempat Magang
         $placement = Placement::with(['instansi', 'mentor', 'guru'])
             ->where('siswa_id', $user->id)
             ->where('status', 'aktif')
             ->first();
 
-        // 2. Statistik Logbook Pribadi
         $logbookSummary = [
             'total' => Logbook::where('user_id', $user->id)->count(),
             'pending' => Logbook::where('user_id', $user->id)->where('status', 'pending')->count(),
@@ -128,15 +122,12 @@ class DashboardController extends Controller
     {
         $guruId = Auth::id();
 
-        // 1. Ambil ID Siswa yang dibimbing Guru ini
         $siswaIds = Placement::where('guru_id', $guruId)
             ->where('status', 'aktif')
             ->pluck('siswa_id');
 
-        // 2. Data Statistik
         $totalSiswa = $siswaIds->count();
 
-        // Cek berapa siswa yang sudah dinilai oleh Guru ini
         $placementIds = Placement::where('guru_id', $guruId)->pluck('id');
         $sudahDinilai = Penilaian::whereIn('placement_id', $placementIds)
             ->where('penilai_id', $guruId)
@@ -144,14 +135,12 @@ class DashboardController extends Controller
 
         $belumDinilai = $totalSiswa - $sudahDinilai;
 
-        // 3. Logbook Terbaru (Monitoring)
         $recentLogbooks = Logbook::whereIn('user_id', $siswaIds)
             ->with('siswa')
             ->latest()
             ->take(5)
             ->get();
 
-        // Pastikan view ada di resources/views/dashboard/guru.blade.php
         return view('guru.dashboard', compact('totalSiswa', 'sudahDinilai', 'belumDinilai', 'recentLogbooks'));
     }
 
@@ -162,14 +151,11 @@ class DashboardController extends Controller
     {
         $mentorId = Auth::id();
 
-        // Ambil daftar siswa yang dimonitor mentor ini
         $siswaMagang = Placement::where('mentor_id', $mentorId)
             ->with('siswa')
             ->where('status', 'aktif')
             ->get();
 
-        // Hitung Logbook yang butuh verifikasi (Pending)
-        // Ambil ID siswa dulu
         $siswaIds = $siswaMagang->pluck('siswa_id');
 
         $logbookPending = Logbook::whereIn('user_id', $siswaIds)

@@ -23,13 +23,28 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-        public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate(); // Ini akan memanggil validasi status yg kita buat di atas
+        $request->authenticate();
 
         $request->session()->regenerate();
 
-        // Cek Role untuk Redirect
+        $user = Auth::user();
+
+        // CEK 1: Apakah ini SISWA dan statusnya PENDING?
+        if ($user->role === 'siswa' && $user->status_akun === 'pending') {
+
+            // Tendang keluar (Logout paksa)
+            Auth::guard('web')->logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            // Balik ke halaman login dengan pesan KUNING (status_pending)
+            return redirect()->route('login')
+                ->with('status_pending', 'Akun Anda sedang menunggu verifikasi Admin. Mohon bersabar.');
+        }
+
         $role = $request->user()->role;
 
         if ($role === 'admin') {

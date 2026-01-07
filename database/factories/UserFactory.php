@@ -11,34 +11,46 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
     protected static ?string $password;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'name' => fake()->name(),
+            'username' => fake()->unique()->userName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'alamat' => fake()->address(),
+            'no_hp' => fake()->phoneNumber(),
+            'status_akun' => 'aktif',
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     */
-    public function unverified(): static
+    public function siswa(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 'siswa',
+            'nomor_identitas' => fake()->unique()->numerify('####'),
+            'kelas' => fake()->randomElement(['XII RPL 1', 'XII RPL 2', 'XII TKJ 1', 'XII MM 1']),
+            'jurusan_id' => fake()->numberBetween(1, 3),
+        ]);
+    }
+
+    public function guru(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'guru',
+            'nomor_identitas' => fake()->unique()->numerify('19##########'),
+        ]);
+    }
+
+    public function industri(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'industri',
+            'nomor_identitas' => fake()->unique()->numerify('NIK####'),
         ]);
     }
 }

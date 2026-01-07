@@ -15,6 +15,7 @@
     <div class="flex-1 overflow-y-auto py-4 px-3 custom-scrollbar space-y-1">
 
         @include('admin.partials.sidebar_item', ['route' => 'siswa.dashboard', 'icon' => 'fas fa-home', 'label' => 'Dashboard'])
+        @include('admin.partials.sidebar_item', ['route' => 'siswa.transkrip.index', 'icon' => 'fas fa-clipboard-list', 'label' => 'Transkrip'])
 
         <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-blue-300 uppercase tracking-wider sidebar-text whitespace-nowrap">Kegiatan Harian</div>
 

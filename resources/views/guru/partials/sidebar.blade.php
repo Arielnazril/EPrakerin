@@ -18,7 +18,8 @@
 
         <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-blue-300 uppercase tracking-wider sidebar-text whitespace-nowrap">Akademik</div>
 
-        @include('admin.partials.sidebar_item', ['route' => 'guru.penilaian.index', 'icon' => 'fas fa-pen-nib', 'label' => 'Input Nilai'])
+        {{-- UPDATE LABEL DISINI --}}
+        @include('admin.partials.sidebar_item', ['route' => 'guru.penilaian.index', 'icon' => 'fas fa-pen-nib', 'label' => 'Penilaian & Riwayat'])
 
         <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-blue-300 uppercase tracking-wider sidebar-text whitespace-nowrap">Pengaturan</div>
 

@@ -37,8 +37,11 @@ class RegisteredUserController extends Controller
             'username' => ['required', 'string', 'max:225'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'nomor_identitas' => ['required', 'string', 'unique:users,nomor_identitas'],
             'jurusan_id' => ['required', 'exists:jurusans,id'],
-            'nomor_identitas' => ['required', 'string', 'max:20'],
+            'kelas' => ['required', 'string'],
+            'no_hp' => ['required', 'string'],
+            'alamat' => ['nullable', 'string'],
         ]);
 
         $user = User::create([
@@ -50,13 +53,16 @@ class RegisteredUserController extends Controller
             'status_akun' => 'pending',
             'nomor_identitas' => $request->nomor_identitas,
             'jurusan_id' => $request->jurusan_id,
+            'kelas' => $request->kelas,
+            'no_hp' => $request->no_hp,
+            'alamat' => $request->alamat,
         ]);
 
         event(new Registered($user));
 
         // Auth::login($user);
 
-        return redirect()->route('login')->with('status', 'Registrasi berhasil! Akun menunggu verifikasi Admin.');
+        return redirect()->route('login')->with('status', 'Registrasi berhasil! Mohon tunggu Admin memverifikasi akun Anda.');
 
         // return redirect(RouteServiceProvider::HOME);
     }

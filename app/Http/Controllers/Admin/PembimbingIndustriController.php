@@ -11,39 +11,37 @@ use Illuminate\Validation\Rule;
 
 class PembimbingIndustriController extends Controller
 {
-    // Menampilkan daftar mentor yang sudah dibuat Admin
+    
     public function index()
     {
         $mentors = User::where('role', 'industri')->with('instansi')->latest()->get();
         return view('admin.master.pembimbing.index', compact('mentors'));
     }
 
-    // Form buat akun mentor baru
     public function create()
     {
-        // Admin harus pilih mentor ini kerja di PT mana
-        $instansis = Instansi::all(); 
+
+        $instansis = Instansi::all();
         return view('admin.master.pembimbing.create', compact('instansis'));
     }
 
-    // Proses simpan akun mentor
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|min:6',
-            'instansi_id' => 'required|exists:instansis,id', // Wajib link ke perusahaan
+            'instansi_id' => 'required|exists:instansis,id',
             'no_hp' => 'nullable|string',
         ]);
 
         User::create([
             'name' => $request->name,
             'username' => $request->username,
-            'email' => $request->username . '@industri.com', // Email dummy
+            'email' => $request->username . '@industri.com',
             'password' => Hash::make($request->password),
             'role' => 'industri',
-            'instansi_id' => $request->instansi_id, // Kunci: Mentor ini milik PT X
+            'instansi_id' => $request->instansi_id,
             'no_hp' => $request->no_hp,
         ]);
 
@@ -60,7 +58,7 @@ class PembimbingIndustriController extends Controller
     public function update(Request $request, $id)
     {
         $mentor = User::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required',
             'username' => ['required', Rule::unique('users', 'username')->ignore($id)],

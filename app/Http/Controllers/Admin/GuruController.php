@@ -25,15 +25,15 @@ class GuruController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'nip' => 'required|string|unique:users,username', // Username pakai NIP
+            'nip' => 'required|string|unique:users,username',
             'password' => 'required|string|min:6',
             'no_hp' => 'nullable|string',
         ]);
 
         User::create([
             'name' => $request->name,
-            'username' => $request->nip, // Set Username jadi NIP
-            'email' => $request->nip . '@guru.smk', // Email dummy agar tidak error unique
+            'username' => $request->nip,
+            'email' => $request->nip . '@guru.smk',
             'password' => Hash::make($request->password),
             'role' => 'guru',
             'nomor_identitas' => $request->nip,
@@ -52,7 +52,7 @@ class GuruController extends Controller
     public function update(Request $request, $id)
     {
         $guru = User::findOrFail($id);
-        
+
         $request->validate([
             'name' => 'required',
             'nip' => ['required', Rule::unique('users', 'username')->ignore($id)],

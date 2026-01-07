@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
 
         Route::post('/siswa/{id}/verify', [SiswaController::class, 'verify'])->name('siswa.verify');
+        Route::post('/siswa/{id}/reject', [SiswaController::class, 'reject'])->name('siswa.reject');
 
         // Master Data (Resource Controller)
         Route::resource('jurusan', JurusanController::class);
@@ -54,6 +55,8 @@ Route::middleware('auth')->group(function () {
 
         // Manajemen Penempatan Magang
         Route::resource('placement', PlacementController::class)->only(['index', 'create', 'store', 'destroy']);
+        Route::get('/rekap-nilai', [PlacementController::class, 'rekap'])->name('rekap.index');
+        Route::post('/rekap-nilai/{id}/finalize', [PlacementController::class, 'finalize'])->name('rekap.finalize');
     });
 
     // =================================================================
@@ -70,6 +73,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/logbook/{id}/edit', [LogbooksController::class, 'edit'])->name('logbook.edit');
         Route::put('/logbook/{id}', [LogbooksController::class, 'update'])->name('logbook.update');
         Route::delete('/logbook/{id}', [LogbooksController::class, 'destroy'])->name('logbook.destroy');
+        Route::get('/transkrip', [\App\Http\Controllers\Siswa\TranskripController::class, 'index'])->name('transkrip.index');
     });
 
     // =================================================================
@@ -85,8 +89,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/validasi/{id}', [ValidasiLogbookController::class, 'update'])->name('validasi.update');
 
         Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
-        Route::get('/penilaian/{placement_id}', [PenilaianController::class, 'create'])->name('penilaian.create');
+        Route::get('/penilaian/{placement_id}/create', [PenilaianController::class, 'create'])->name('penilaian.create'); // Input Baru
         Route::post('/penilaian/{placement_id}', [PenilaianController::class, 'store'])->name('penilaian.store');
+
+        // [BARU] Route Edit & Update Nilai
+        Route::get('/penilaian/{id}/edit', [PenilaianController::class, 'edit'])->name('penilaian.edit');
+        Route::put('/penilaian/{id}', [PenilaianController::class, 'update'])->name('penilaian.update');
     });
 
     // =================================================================
@@ -97,10 +105,13 @@ Route::middleware('auth')->group(function () {
         // Dashboard Guru
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Penilaian Guru (Lengkapi Index, Create, Store)
-        Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index'); // <-- WAJIB ADA
-        Route::get('/penilaian/{placement_id}', [PenilaianController::class, 'create'])->name('penilaian.create');
+        Route::get('/penilaian', [PenilaianController::class, 'index'])->name('penilaian.index');
+        Route::get('/penilaian/{placement_id}/create', [PenilaianController::class, 'create'])->name('penilaian.create'); // Input Baru
         Route::post('/penilaian/{placement_id}', [PenilaianController::class, 'store'])->name('penilaian.store');
+
+        // [BARU] Route Edit & Update Nilai
+        Route::get('/penilaian/{id}/edit', [PenilaianController::class, 'edit'])->name('penilaian.edit');
+        Route::put('/penilaian/{id}', [PenilaianController::class, 'update'])->name('penilaian.update');
     });
 
     // Profile Routes (Bawaan Breeze - Opsional)

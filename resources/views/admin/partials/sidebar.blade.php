@@ -26,6 +26,7 @@
 
         <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-blue-300 uppercase tracking-wider sidebar-text whitespace-nowrap">Magang</div>
 
+        @include('admin.partials.sidebar_item', ['route' => 'admin.rekap.index', 'icon' => 'fas fa-award', 'label' => 'Rekap Nilai'])
         @include('admin.partials.sidebar_item', ['route' => 'admin.placement.index', 'icon' => 'fas fa-map-marked-alt', 'label' => 'Penempatan'])
         @include('admin.partials.sidebar_item', ['route' => 'admin.placement.create', 'icon' => 'fas fa-plus-circle', 'label' => 'Plotting Baru'])
         @include('admin.partials.sidebar_item', ['route' => 'profile.edit', 'icon' => 'fas fa-user-cog', 'label' => 'Profil Saya'])

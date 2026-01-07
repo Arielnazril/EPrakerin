@@ -9,9 +9,8 @@ class Instansi extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id']; // Semua kolom bisa diisi kecuali ID
-
-    // Relasi: Satu Instansi punya banyak Mentor (User)
+    protected $guarded = ['id'];
+    
     public function mentors()
     {
         return $this->hasMany(User::class, 'instansi_id');

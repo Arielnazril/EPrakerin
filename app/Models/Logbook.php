@@ -27,13 +27,11 @@ class Logbook extends Model
         'validated_at' => 'datetime',
     ];
 
-    // Relasi ke Siswa (User)
     public function siswa()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke Mentor (User)
     public function validator()
     {
         return $this->belongsTo(User::class, 'validated_by');

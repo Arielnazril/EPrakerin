@@ -10,7 +10,8 @@ class InstansiController extends Controller
 {
     public function index()
     {
-        $instansis = Instansi::latest()->get();
+        $instansis = Instansi::latest()
+            ->get();
         return view('admin.master.instansi.index', compact('instansis'));
     }
 

@@ -15,7 +15,7 @@ class LogbooksController extends Controller
      */
     public function index()
     {
-        // Ambil logbook milik user yang sedang login, urutkan dari yang terbaru
+        
         $logbooks = Logbook::where('user_id', Auth::id())
                             ->orderBy('tanggal', 'desc')
                             ->orderBy('jam_masuk', 'desc')
@@ -42,7 +42,7 @@ class LogbooksController extends Controller
             'jam_masuk' => 'required',
             'jam_keluar' => 'required|after:jam_masuk',
             'kegiatan' => 'required|string|min:10',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $data = [
@@ -51,12 +51,11 @@ class LogbooksController extends Controller
             'jam_masuk' => $request->jam_masuk,
             'jam_keluar' => $request->jam_keluar,
             'kegiatan' => $request->kegiatan,
-            'status' => 'pending', // Default status
+            'status' => 'pending',
         ];
 
-        // Handle Upload Foto
         if ($request->hasFile('foto')) {
-            // Simpan di folder: storage/app/public/logbooks
+
             $path = $request->file('foto')->store('logbooks', 'public');
             $data['foto'] = $path;
         }
@@ -74,7 +73,6 @@ class LogbooksController extends Controller
     {
         $logbook = Logbook::where('user_id', Auth::id())->findOrFail($id);
 
-        // Cegah edit jika sudah divalidasi
         if ($logbook->status !== 'pending') {
             return redirect()->route('siswa.logbook.history')
                              ->with('error', 'Logbook yang sudah dinilai tidak bisa diedit.');
@@ -104,9 +102,7 @@ class LogbooksController extends Controller
 
         $data = $request->only(['tanggal', 'jam_masuk', 'jam_keluar', 'kegiatan']);
 
-        // Ganti foto jika ada upload baru
         if ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
             if ($logbook->foto && Storage::disk('public')->exists($logbook->foto)) {
                 Storage::disk('public')->delete($logbook->foto);
             }
@@ -126,7 +122,6 @@ class LogbooksController extends Controller
     {
         $logbook = Logbook::where('user_id', Auth::id())->findOrFail($id);
 
-        // Hapus file foto fisik
         if ($logbook->foto && Storage::disk('public')->exists($logbook->foto)) {
             Storage::disk('public')->delete($logbook->foto);
         }

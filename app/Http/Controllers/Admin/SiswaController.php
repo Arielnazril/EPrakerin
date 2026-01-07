@@ -10,39 +10,34 @@ use Illuminate\Support\Facades\Hash;
 
 class SiswaController extends Controller
 {
-    // 1. HALAMAN UTAMA (INDEX)
+
     public function index()
     {
-        // Ambil Siswa Pending (Untuk Tabel Verifikasi)
+
         $siswaPending = User::where('role', 'siswa')
                             ->where('status_akun', 'pending')
                             ->with('jurusan')
                             ->latest()
                             ->get();
 
-        // Ambil Siswa Aktif (Untuk Tabel Data Utama)
         $siswaAktif = User::where('role', 'siswa')
                           ->where('status_akun', 'aktif')
                           ->with('jurusan')
                           ->latest()
                           ->get();
 
-        // Kita kirim dua variabel ini ke View
         return view('admin.master.siswa.index', compact('siswaPending', 'siswaAktif'));
     }
 
-    // 2. PROSES VERIFIKASI (TERIMA SISWA)
     public function verify($id)
     {
         $siswa = User::findOrFail($id);
 
-        // Ubah status jadi aktif
         $siswa->update(['status_akun' => 'aktif']);
 
         return back()->with('success', 'Akun siswa ' . $siswa->name . ' berhasil diaktifkan.');
     }
 
-    // 3. HALAMAN EDIT
     public function edit($id)
     {
         $siswa = User::findOrFail($id);
@@ -50,7 +45,6 @@ class SiswaController extends Controller
         return view('admin.master.siswa.edit', compact('siswa', 'jurusans'));
     }
 
-    // 4. PROSES UPDATE DATA
     public function update(Request $request, $id)
     {
         $siswa = User::findOrFail($id);
@@ -68,7 +62,6 @@ class SiswaController extends Controller
             'no_hp' => $request->no_hp,
         ];
 
-        // Update password hanya jika diisi
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -78,7 +71,6 @@ class SiswaController extends Controller
         return redirect()->route('admin.siswa.index')->with('success', 'Data siswa berhasil diperbarui.');
     }
 
-    // 5. HAPUS SISWA (Tolak / Hapus Permanen)
     public function destroy($id)
     {
         $siswa = User::findOrFail($id);

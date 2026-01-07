@@ -20,7 +20,7 @@
 
         @include('admin.partials.sidebar_item', ['route' => 'industri.validasi.index', 'icon' => 'fas fa-check-double', 'label' => 'Validasi Logbook'])
 
-        @include('admin.partials.sidebar_item', ['route' => 'industri.penilaian.index', 'icon' => 'fas fa-star', 'label' => 'Penilaian'])
+        @include('admin.partials.sidebar_item', ['route' => 'industri.penilaian.index', 'icon' => 'fas fa-star', 'label' => 'Penilaian & Riwayat'])
 
         <div class="pt-4 pb-2 px-3 text-[10px] font-bold text-purple-300 uppercase tracking-wider sidebar-text whitespace-nowrap">Pengaturan</div>
 

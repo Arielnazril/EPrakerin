@@ -9,15 +9,20 @@ class Penilaian extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id'];
+    protected $fillable = [
+        'placement_id',
+        'penilai_id',
+        'aspek_teknis',
+        'aspek_non_teknis',
+        'nilai_akhir',
+        'catatan'
+    ];
 
-    // Relasi ke Data Penempatan
     public function placement()
     {
         return $this->belongsTo(Placement::class);
     }
 
-    // Relasi ke Pemberi Nilai (Mentor/Guru)
     public function penilai()
     {
         return $this->belongsTo(User::class, 'penilai_id');

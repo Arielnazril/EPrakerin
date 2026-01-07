@@ -10,8 +10,7 @@ class Jurusan extends Model
     use HasFactory;
 
     protected $guarded = ['id'];
-
-    // Relasi: Satu Jurusan punya banyak Siswa (User)
+    
     public function siswas()
     {
         return $this->hasMany(User::class, 'jurusan_id');

@@ -60,42 +60,31 @@ class User extends Authenticatable
         return $this->hasOne(Penilaian::class, 'siswa_id');
     }
 
-    // --- RELASI KE DATA MASTER ---
-
-    // Jika user adalah Siswa, dia punya Jurusan
     public function jurusan()
     {
         return $this->belongsTo(Jurusan::class, 'jurusan_id');
     }
 
-    // Jika user adalah Mentor Industri, dia punya Instansi
     public function instansi()
     {
         return $this->belongsTo(Instansi::class, 'instansi_id');
     }
 
-    // --- RELASI KE MAGANG (PLACEMENT) ---
-    // Karena satu tabel User dipakai banyak role, relasinya kita pisah biar jelas
-
-    // 1. Relasi untuk SISWA melihat tempat magangnya
     public function placement_siswa()
     {
         return $this->hasOne(Placement::class, 'siswa_id');
     }
 
-    // 2. Relasi untuk GURU melihat siapa saja siswa bimbingannya
     public function placements_guru()
     {
         return $this->hasMany(Placement::class, 'guru_id');
     }
 
-    // 3. Relasi untuk MENTOR melihat siapa siswa yang diajar
     public function placements_mentor()
     {
         return $this->hasMany(Placement::class, 'mentor_id');
     }
 
-    // --- RELASI KE LOGBOOK ---
     public function logbooks()
     {
         return $this->hasMany(Logbook::class, 'user_id');

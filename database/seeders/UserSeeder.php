@@ -10,74 +10,92 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. ADMIN
+        $password = Hash::make('password');
+        
         User::create([
             'name' => 'Administrator Sekolah',
             'username' => 'admin',
             'email' => 'admin@sekolah.sch.id',
-            'password' => Hash::make('password'), // Password default
+            'password' => $password,
             'role' => 'admin',
-            'status_akun' => 'aktif',
         ]);
 
-        // 2. GURU PEMBIMBING
         User::create([
-            'name' => 'Pak Budi Santoso',
-            'username' => '198501012010011001', // NIP
+            'name' => 'Peno Fahmi (Admin)',
+            'username' => 'elhal8n',
+            'email' => 'penofahmi@gmail.com',
+            'password' => $password,
+            'role' => 'admin',
+        ]);
+
+        User::create([
+            'name' => 'Budi Santoso S.Pd',
+            'username' => 'guru1',
             'email' => 'budi@sekolah.sch.id',
-            'password' => Hash::make('password'),
+            'password' => $password,
             'role' => 'guru',
-            'nomor_identitas' => '198501012010011001', // NIP
+            'nomor_identitas' => '198501012010011001',
             'no_hp' => '081234567890',
-            'status_akun' => 'aktif',
         ]);
 
-        // 3. MENTOR INDUSTRI (PT. Telkom - ID 1)
         User::create([
-            'name' => 'Kak Sarah (Mentor Telkom)',
+            'name' => 'Peno S.Kom',
+            'username' => 'guru2',
+            'email' => 'peno.guru@sekolah.sch.id',
+            'password' => $password,
+            'role' => 'guru',
+            'nomor_identitas' => '221220095',
+            'no_hp' => '081234567891',
+        ]);
+
+        User::create([
+            'name' => 'Pak Mentor Telkom',
             'username' => 'mentor_telkom',
-            'email' => 'sarah@telkom.co.id',
-            'password' => Hash::make('password'),
+            'email' => 'mentor@telkom.co.id',
+            'password' => $password,
             'role' => 'industri',
-            'instansi_id' => 1, // Link ke PT. Telkom
+            'nomor_identitas' => 'NIK-TELKOM-001',
+            'instansi_id' => 1,
             'no_hp' => '08987654321',
-            'status_akun' => 'aktif',
         ]);
 
-        // 4. MENTOR INDUSTRI (CV. Tech - ID 2)
         User::create([
-            'name' => 'Mas Doni (Mentor Tech)',
+            'name' => 'Ibu Mentor Tech',
             'username' => 'mentor_tech',
-            'email' => 'doni@tech.com',
-            'password' => Hash::make('password'),
+            'email' => 'mentor@techsolusi.com',
+            'password' => $password,
             'role' => 'industri',
-            'instansi_id' => 2, // Link ke CV Tech
-            'no_hp' => '0855555555',
-            'status_akun' => 'aktif',
+            'nomor_identitas' => 'NIK-TECH-002',
+            'instansi_id' => 2,
+            'no_hp' => '08987654322',
         ]);
 
-        // 5. SISWA RPL (Magang di Telkom)
+        // 4. SISWA
         User::create([
             'name' => 'Ahmad Siswa RPL',
-            'username' => '102030', // NIS
+            'username' => '102030',
             'email' => 'ahmad@siswa.sch.id',
-            'password' => Hash::make('password'),
+            'password' => $password,
             'role' => 'siswa',
-            'jurusan_id' => 1, // RPL
+            'jurusan_id' => 1,
             'nomor_identitas' => '102030',
             'status_akun' => 'aktif',
+            'instansi_id' => 1,
+            'kelas' => 'XII RPL 1',
+            'no_hp' => '08520000001'
         ]);
 
-        // 6. SISWA TKJ (Magang di CV Tech)
         User::create([
             'name' => 'Budi Siswa TKJ',
-            'username' => '102031', // NIS
+            'username' => '102031',
             'email' => 'budi@siswa.sch.id',
-            'password' => Hash::make('password'),
+            'password' => $password,
             'role' => 'siswa',
-            'jurusan_id' => 2, // TKJ
+            'jurusan_id' => 2,
             'nomor_identitas' => '102031',
             'status_akun' => 'pending',
+            'kelas' => 'XII TKJ 2',
+            'no_hp' => '08520000002'
         ]);
     }
 }
