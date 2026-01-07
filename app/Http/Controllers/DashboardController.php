@@ -116,7 +116,7 @@ class DashboardController extends Controller
             'disetujui' => Logbook::where('user_id', $user->id)->where('status', 'disetujui')->count(),
         ];
 
-        return view('dashboard.siswa', compact('placement', 'logbookSummary'));
+        return view('siswa.dashboard', compact('placement', 'logbookSummary'));
     }
 
 
@@ -133,7 +133,7 @@ class DashboardController extends Controller
                                    ->where('status', 'aktif')
                                    ->get();
 
-        return view('dashboard.guru', compact('siswaBimbingan'));
+        return view('guru.dashboard', compact('siswaBimbingan'));
     }
 
 
@@ -158,6 +158,6 @@ class DashboardController extends Controller
                                  ->where('status', 'pending')
                                  ->count();
 
-        return view('dashboard.industri', compact('siswaMagang', 'logbookPending'));
+        return view('industri.dashboard', compact('siswaMagang', 'logbookPending'));
     }
 }

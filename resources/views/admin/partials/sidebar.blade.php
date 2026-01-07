@@ -28,6 +28,7 @@
 
         @include('admin.partials.sidebar_item', ['route' => 'admin.placement.index', 'icon' => 'fas fa-map-marked-alt', 'label' => 'Penempatan'])
         @include('admin.partials.sidebar_item', ['route' => 'admin.placement.create', 'icon' => 'fas fa-plus-circle', 'label' => 'Plotting Baru'])
+        @include('admin.partials.sidebar_item', ['route' => 'profile.edit', 'icon' => 'fas fa-user-cog', 'label' => 'Profil Saya'])
     </div>
 
     <div class="p-4 border-t border-white/10">

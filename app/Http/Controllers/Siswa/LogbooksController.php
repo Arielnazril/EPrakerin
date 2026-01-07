@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
-class LogbookController extends Controller
+class LogbooksController extends Controller
 {
     /**
      * Menampilkan riwayat logbook siswa login.
@@ -125,7 +125,7 @@ class LogbookController extends Controller
     public function destroy($id)
     {
         $logbook = Logbook::where('user_id', Auth::id())->findOrFail($id);
-        
+
         // Hapus file foto fisik
         if ($logbook->foto && Storage::disk('public')->exists($logbook->foto)) {
             Storage::disk('public')->delete($logbook->foto);

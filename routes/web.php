@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController; // Opsional jika mau pakai
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PenilaianController;
 
 // Controllers Admin
@@ -13,9 +13,10 @@ use App\Http\Controllers\Admin\PembimbingIndustriController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\PlacementController;
 
-// Controllers Siswa & Industri
-use App\Http\Controllers\Siswa\LogbookController;
+// Controllers Siswa, Industri dan Guru
+use App\Http\Controllers\Siswa\LogbooksController;
 use App\Http\Controllers\Industri\ValidasiLogbookController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -35,6 +36,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 // Group Route yang butuh Login
 Route::middleware('auth')->group(function () {
+
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // =================================================================
     // 1. GROUP ADMIN (Hanya bisa diakses role:admin)
@@ -60,13 +63,15 @@ Route::middleware('auth')->group(function () {
     // =================================================================
     Route::middleware('role:siswa')->prefix('siswa')->name('siswa.')->group(function () {
 
-        // Logbook Harian
-        Route::get('/logbook', [LogbookController::class, 'index'])->name('logbook.history');
-        Route::get('/logbook/create', [LogbookController::class, 'create'])->name('logbook.create');
-        Route::post('/logbook', [LogbookController::class, 'store'])->name('logbook.store');
-        Route::get('/logbook/{id}/edit', [LogbookController::class, 'edit'])->name('logbook.edit');
-        Route::put('/logbook/{id}', [LogbookController::class, 'update'])->name('logbook.update');
-        Route::delete('/logbook/{id}', [LogbookController::class, 'destroy'])->name('logbook.destroy');
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+
+        Route::get('/logbook', [LogbooksController::class, 'index'])->name('logbook.history');
+        Route::get('/logbook/create', [LogbooksController::class, 'create'])->name('logbook.create');
+        Route::post('/logbook', [LogbooksController::class, 'store'])->name('logbook.store');
+        Route::get('/logbook/{id}/edit', [LogbooksController::class, 'edit'])->name('logbook.edit');
+        Route::put('/logbook/{id}', [LogbooksController::class, 'update'])->name('logbook.update');
+        Route::delete('/logbook/{id}', [LogbooksController::class, 'destroy'])->name('logbook.destroy');
     });
 
     // =================================================================
