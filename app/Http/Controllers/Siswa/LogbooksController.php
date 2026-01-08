@@ -15,7 +15,7 @@ class LogbooksController extends Controller
      */
     public function index()
     {
-        
+
         $logbooks = Logbook::where('user_id', Auth::id())
                             ->orderBy('tanggal', 'desc')
                             ->orderBy('jam_masuk', 'desc')
@@ -42,7 +42,7 @@ class LogbooksController extends Controller
             'jam_masuk' => 'required',
             'jam_keluar' => 'required|after:jam_masuk',
             'kegiatan' => 'required|string|min:10',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg',
         ]);
 
         $data = [
