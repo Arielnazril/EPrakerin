@@ -34,7 +34,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('img/logo_smk.png') }}" alt="Logo" class="h-10 w-10">
+                    <img src="{{ asset('img/logo_smk.png') }}" alt="Logo" class="h-12 w-12">
                     <div class="hidden md:block">
                         <h1 class="text-xl font-bold text-primary leading-none">e-Prakerin</h1>
                         <p class="text-xs text-gray-500 tracking-wider">SMK BISA HEBAT</p>
@@ -68,7 +68,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-3xl mx-auto">
                 <span class="bg-blue-100 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">
-                    Tahun Ajaran 2025/2026
+                    Tahun Ajaran 2026/2027
                 </span>
                 <h1 class="text-4xl sm:text-6xl font-extrabold text-gray-900 tracking-tight mb-6 leading-tight">
                     Kelola Kegiatan Magang <br>
@@ -89,6 +89,15 @@
                         <a href="#fitur" class="px-8 py-4 bg-white text-gray-700 border border-gray-200 rounded-xl font-bold hover:bg-gray-50 transition flex items-center justify-center gap-2">
                             Pelajari Lebih Lanjut
                         </a>
+                        <a href="{{ asset('dokumen/panduan_prakerin.pdf') }}"
+                        class="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold
+                                hover:bg-blue-700 active:bg-blue-800
+                                shadow-sm hover:shadow-md
+                                transition flex items-center justify-center gap-2"
+                        target="_blank">
+                            Panduan Kerja Praktek
+                        </a>
+
                     @endauth
                 </div>
             </div>
@@ -166,20 +175,68 @@
         <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
     </div>
 
-    <footer class="bg-white border-t border-gray-200 pt-12 pb-8">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center gap-3 mb-4 md:mb-0">
-                    <img src="{{ asset('img/logo_smk.png') }}" alt="Logo" class="h-8 w-8 grayscale opacity-50">
-                    <span class="text-gray-400 font-bold">e-Prakerin</span>
+    <footer class="bg-blue-50 border-t border-blue-100 pt-6 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Baris atas: logo + brand & copyright -->
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Kiri: Logo + nama -->
+            <div class="flex items-center gap-3">
+                <div class="bg-white rounded-2xl p-2 shadow-sm border border-blue-100">
+                    <img src="{{ asset('img/logo_smk.png') }}" alt="Logo"
+                         class="h-14 w-14 rounded-xl object-cover">
                 </div>
-                <div class="text-gray-400 text-sm text-center md:text-right">
-                    <p>&copy; {{ date('Y') }} SMK Pontianak. All rights reserved.</p>
-                    <p class="mt-1">Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})</p>
+                <div>
+                    <p class="text-blue-900 font-bold text-base sm:text-lg">e-Prakerin</p>
+                    <p class="text-blue-400 text-xs tracking-widest font-semibold">
+                        Sistem Informasi Manajemen Praktik Kerja Industri
+                    </p>
                 </div>
             </div>
+
+            <!-- Kanan: copyright -->
+            <p class="text-blue-400 text-xs sm:text-sm text-center md:text-right">
+                &copy; {{ date('Y') }} SMK Al Madani Pontianak. Semua hak cipta dilindungi.
+            </p>
         </div>
-    </footer>
+
+        <!-- Baris bawah: deskripsi tengah -->
+        <div class="mt-3 border-t border-blue-100 pt-3">
+            <p class="text-blue-400 text-xs sm:text-sm text-center max-w-3xl mx-auto">
+                Platform e-Prakerin memfasilitasi kolaborasi siswa, guru, dan mitra industri
+                dalam pelaksanaan Praktik Kerja Industri yang terarah, terukur, dan profesional.
+            </p>
+
+            <!-- Sosial media -->
+            <div class="mt-3 flex items-center justify-center gap-6">
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/smkalmadaniptk_official" target="_blank"
+                   class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center
+                                border border-blue-100 group-hover:border-blue-300 transition">
+                        <img src="{{ asset('img/ic_instagram.png') }}" alt="Instagram"
+                             class="w-4 h-4">
+                    </div>
+                    <span class="text-xs sm:text-sm text-blue-500 group-hover:text-blue-700 font-medium">
+                        @smkalmadaniptk_official
+                    </span>
+                </a>
+
+                <!-- WhatsApp -->
+                <a href="https://wa.me/6285652104414" target="_blank"
+                   class="flex items-center gap-2 group">
+                    <div class="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center
+                                border border-green-100 group-hover:border-green-300 transition">
+                        <img src="{{ asset('img/ic_whatshapp.png') }}" alt="WhatsApp"
+                             class="w-4 h-4">
+                    </div>
+                    <span class="text-xs sm:text-sm text-blue-500 group-hover:text-blue-700 font-medium">
+                        +62 856-5210-4414
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</footer>
 
     <style>
         @keyframes blob {

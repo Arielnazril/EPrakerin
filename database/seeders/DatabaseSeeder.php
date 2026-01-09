@@ -28,24 +28,24 @@ class DatabaseSeeder extends Seeder
             PlacementSeeder::class,
         ]);
 
-        echo "Sedang menanam 10 Instansi & Mentor...\n";
-        $instansis = Instansi::factory(10)->create()->each(function ($instansi) {
+        echo "Data Dummy Mentor...\n";
+        $instansis = Instansi::factory(4)->create()->each(function ($instansi) {
             User::factory()->industri()->create([
                 'instansi_id' => $instansi->id,
                 'name' => 'Mentor ' . $instansi->nama_perusahaan
             ]);
         });
 
-        echo "Sedang menanam 5 Guru Tambahan...\n";
-        $gurus = User::factory(5)->guru()->create();
+        echo "Data Dummy Guru\n";
+        $gurus = User::factory(3)->guru()->create();
 
         // Gabungkan Guru Lama + Guru Baru untuk dipilih acak nanti
         $allGurus = User::where('role', 'guru')->get();
 
 
-        echo "Sedang menanam 50 Siswa & Penempatan...\n";
+        echo "Data Dummy Siswa\n";
 
-        User::factory(30)->siswa()->create([
+        User::factory(10)->siswa()->create([
             'status_akun' => 'aktif'
         ])->each(function ($siswa) use ($instansis, $allGurus) {
 
